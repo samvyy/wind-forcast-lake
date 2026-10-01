@@ -19,7 +19,9 @@ const age=t=>Math.max(0,Math.round((Date.now()/1000-t)/60));
 function stored(key,fallback){try{return localStorage.getItem(key)||fallback;}catch{return fallback;}}
 function save(key,value){try{localStorage.setItem(key,value);}catch{}}
 function distance(a,b){const r=Math.PI/180,dlat=(b.lat-a.lat)*r,dlon=(b.lon-a.lon)*r;return (6371*2*Math.asin(Math.sqrt(Math.sin(dlat/2)**2+Math.cos(a.lat*r)*Math.cos(b.lat*r)*Math.sin(dlon/2)**2))).toFixed(1);}
-async function json(url){const r=await fetch(url,{cache:'no-store',signal:AbortSignal.timeout(25000)});if(!r.ok)throw new Error(`HTTP ${r.status}`);return r.json();}
+async function json(url,options={}){const r=await fetch(url,{cache:'no-store',signal:AbortSignal.timeout(12000),...options});if(!r.ok)throw new Error(`HTTP ${r.status}`);const data=await r.json();Object.defineProperty(data,'_offline',{value:r.headers.get('X-Lake-Offline')==='1'});return data;}
+const windClass=v=>Number.isFinite(v)?v>=17?'wind-green':v>=12?'wind-blue':'wind-neutral':'wind-unavailable';
+async function latestLive(){return json('https://api.github.com/repos/samvyy/wind-forcast-lake/contents/data/live.json?ref=main&t='+Date.now(),{headers:{Accept:'application/vnd.github.raw+json'}});}
 function status(o,error){if(!o)return ['off','Indisponible'];if(error||age(o.time)>30)return ['stale','Ancienne'];return ['','Récente'];}
 function renderLive(){
   $('live-cards').innerHTML=spot.stations.map(id=>{
@@ -93,26 +95,34 @@ function renderSpot(){
   $('source-links').innerHTML=spot.stations.map(id=>live.stations[id]?`<a href="${esc(live.stations[id].source)}" target="_blank" rel="noopener">${esc(live.stations[id].name)}</a>`:'').join('')+'<a href="https://open-meteo.com/en/docs" target="_blank" rel="noopener">Open-Meteo</a>';
 }
 function renderSpotTable(){
-  $('spots').innerHTML=`<table class="spot-table"><caption>Choisir un spot · vent mesuré en ${unitLabel()}</caption><thead><tr><th scope="col">Spot / station</th><th scope="col">Vent <small>${unitLabel()}</small></th><th scope="col">Rafales <small>${unitLabel()}</small></th></tr></thead><tbody>${spots.map(s=>{
+  $('spots').innerHTML=`<table class="spot-table"><caption><span>Les spots</span><span class="table-caption-note">Vent mesuré · ${unitLabel()}</span></caption><thead><tr><th scope="col">Spot / station</th><th scope="col">Vent <small>${unitLabel()}</small></th><th scope="col">Rafales <small>${unitLabel()}</small></th></tr></thead><tbody>${spots.map(s=>{
     const station=live.stations[s.stations[0]],o=station?.latest,[cls,label]=status(o,station?.error);
-    return `<tr data-spot="${s.id}" class="${s.id===spot.id?'active':''}"><th scope="row"><button data-spot="${s.id}" aria-pressed="${s.id===spot.id}">${esc(s.name)}</button><span class="table-source">${esc(station?.name||'Station indisponible')}${o?' · '+fmt(o.time,{hour:'2-digit',minute:'2-digit'}):''}</span><span class="table-status ${cls}">${label}${station?' · '+distance(s,station)+' km'+(s.stations[0]==='yvbeach'?' env.':''):''}</span></th><td class="table-wind ${cls}">${n(o?.speed)}</td><td class="table-gust ${cls}">${n(o?.gust)}</td></tr>`;
-  }).join('')}</tbody></table>`;
+    return `<tr data-spot="${s.id}" class="${s.id===spot.id?'active':''}"><th scope="row"><button data-spot="${s.id}" aria-pressed="${s.id===spot.id}">${esc(s.name)}</button><span class="table-source">${esc(station?.name||'Station indisponible')}${o?' · '+fmt(o.time,{hour:'2-digit',minute:'2-digit'}):''}</span><span class="table-status ${cls}">${label}${station?' · '+distance(s,station)+' km'+(s.stations[0]==='yvbeach'?' env.':''):''}</span></th><td class="table-wind"><span class="wind-chip ${windClass(o?.speed)}">${n(o?.speed)}</span></td><td class="table-gust"><span class="wind-chip ${windClass(o?.gust)}">${n(o?.gust)}</span></td></tr>`;
+  }).join('')}</tbody></table><div class="wind-legend"><span><i class="wind-blue"></i> Dès 12 nd</span><span><i class="wind-green"></i> Dès 17 nd</span></div>`;
   $('spots').querySelectorAll('tbody tr').forEach(row=>row.onclick=()=>choose(row.dataset.spot));
 }
 function choose(id){spot=spots.find(s=>s.id===id)||spots[3];save('lake-spot',spot.id);history.replaceState(null,'','#'+spot.id);index=0;renderSpot();}
-async function load(){
-  const version=++loadVersion;$('refresh').disabled=true;$('connection').textContent='Actualisation…';
+async function load(manual=false){
+  const version=++loadVersion,previousTime=live.generatedAt||0;
+  $('refresh').disabled=true;$('refresh').classList.add('refreshing');$('connection').textContent='Vérification des dernières données…';
   const results=await Promise.allSettled([json('./data/live.json?t='+Date.now()),json('./data/forecast.json?t='+Date.now())]);
   if(version!==loadVersion)return;
-  if(results[0].status==='fulfilled')live=results[0].value;
-  if(results[1].status==='fulfilled')forecasts=results[1].value;
-  const ok=results.every(r=>r.status==='fulfilled');document.body.classList.toggle('offline',!ok||!navigator.onLine);
-  $('connection').textContent=ok?'Mesures datées · collecte ≈ 15 min':'Connexion indisponible · données précédentes conservées';
-  $('refresh').disabled=false;renderSpot();
+  let received=results[0].status==='fulfilled'?results[0].value:null;
+  if(manual||!received||age(received.generatedAt)>6){
+    try{const latest=await latestLive();if(!received||latest.generatedAt>=received.generatedAt)received=latest;}catch{}
+  }
+  if(version!==loadVersion)return;
+  if(received&&received.generatedAt>=(live.generatedAt||0))live=received;
+  if(results[1].status==='fulfilled'&&results[1].value.generatedAt>=(forecasts.generatedAt||0))forecasts=results[1].value;
+  const ok=!!received&&!received._offline&&navigator.onLine;
+  document.body.classList.toggle('offline',!ok);
+  const checked=fmt(Date.now()/1000,{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  $('connection').textContent=ok?`Vérifié à ${checked} · ${live.generatedAt>previousTime?'dernières données chargées':'aucune nouvelle collecte disponible'}. Collecte prévue toutes les 5 min${age(live.generatedAt)>10?' · collecte en retard':''}.`:'Connexion indisponible · données sauvegardées conservées';
+  $('refresh').disabled=false;$('refresh').classList.remove('refreshing');renderSpot();
 }
 $('unit').value=unit=stored('lake-unit','kn');
 $('unit').onchange=()=>{unit=$('unit').value;save('lake-unit',unit);renderSpot();};
-$('refresh').onclick=load;
+$('refresh').onclick=()=>load(true);
 $('range').querySelectorAll('button').forEach(b=>b.onclick=()=>{hours=Number(b.dataset.hours);index=0;$('range').querySelectorAll('button').forEach(x=>x.classList.toggle('active',x===b));renderForecast();});
 $('metric').onchange=renderForecast;$('hour-slider').oninput=()=>{index=Number($('hour-slider').value);renderForecast();};
 $('history-station').onchange=renderHistory;$('history-hours').onchange=renderHistory;

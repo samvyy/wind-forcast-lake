@@ -46,7 +46,7 @@ Les mesures ne sont pas fusionnées en une moyenne : des stations ayant des expo
 
 ## Actualisation
 
-Le workflow collecte les mesures environ toutes les **15 minutes**, conserve un historique de **72 heures**, rafraîchit les prévisions toutes les **3 heures**, puis publie le site. Le planning GitHub Actions peut être retardé ; les dates des sources sont toujours affichées. Le widget Holfuy peut être consulté directement dans « Historique & stations en direct » pour un relevé plus récent. Le bouton d’actualisation recharge le dernier cache publié, les webcams et les widgets ; il ne déclenche pas un workflow.
+Le workflow collecte les mesures environ toutes les **5 minutes**, conserve un historique de **72 heures**, rafraîchit les prévisions toutes les **3 heures**, puis publie le site. Le planning GitHub Actions peut être retardé ; les dates des sources sont toujours affichées. Le widget Holfuy peut être consulté directement dans « Historique & stations en direct » pour un relevé plus récent. Le bouton d’actualisation vérifie la dernière collecte dans le dépôt public et recharge les webcams et widgets ; il ne déclenche pas une mesure sur les stations.
 
 Le premier historique contient seulement le premier relevé : il se remplit avec les collectes. En cas d’échec, les données antérieures et leur date sont conservées. Le service worker conserve les fichiers et les données déjà consultées pour un accès hors ligne ; les webcams et widgets nécessitent Internet.
 
@@ -66,3 +66,5 @@ python -m http.server 8080
 Ouvrir http://localhost:8080. Le collecteur et les parsers sont dans `scripts/collect.py`, les spots dans `data/spots.json`, l’interface dans `index.html`, `styles.css`, `app.js`.
 
 Vérifier les fichiers JSON, les horodatages, les unités et les erreurs de source après modification d’un parser. Les sources publiques peuvent évoluer : si leur format change, le collecteur signale l’échec au lieu d’inventer une valeur.
+
+Le bouton Actualiser vérifie également la dernière collecte directement dans le dépôt public, sans attendre sa propagation sur Pages. L’heure de vérification est distincte de celle des relevés. GitHub peut retarder les collectes programmées. Les seuils de couleur sont appliqués à chaque valeur : bleu dès 12 nd, vert dès 17 nd, également en affichage km/h.
