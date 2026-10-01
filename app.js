@@ -32,7 +32,7 @@ function stationWidgets(){
   $('station-embeds').innerHTML=spot.stations.map(id=>{
     const s=live.stations[id];if(!s)return '';
     if(s.holfuy)return `<div class="station-widget"><h4>${esc(s.name)} · widget direct</h4><iframe title="Vent en direct ${esc(s.name)}" loading="lazy" src="https://widget.holfuy.com/?station=${s.holfuy}&su=${unit==='kn'?'knots':'kmh'}&t=C&lang=fr&mode=detailed"></iframe><a href="${esc(s.source)}" target="_blank" rel="noopener">Ouvrir la source</a></div>`;
-    return `<div class="station-widget"><a href="${esc(s.source)}" target="_blank" rel="noopener">YvBeach : données & graphe original sur 72 h</a></div>`;
+    return `<div class="station-widget"><a href="${esc(s.source)}" target="_blank" rel="noopener">${esc(s.name)} : données & graphes d’origine</a></div>`;
   }).join('');
 }
 function renderCameras(){
@@ -84,14 +84,20 @@ function renderForecast(){
 }
 function renderSpot(){
   document.title=`${spot.name} · Wind Forcast Lake`;
-  $('spots').innerHTML=spots.map(s=>`<button data-spot="${s.id}" class="${s.id===spot.id?'active':''}" aria-pressed="${s.id===spot.id}">${esc(s.name)}</button>`).join('');
-  $('spots').querySelectorAll('button').forEach(b=>b.onclick=()=>choose(b.dataset.spot));
+  renderSpotTable();
   $('spot-name').textContent=spot.name;$('lake').textContent='LAC DE '+spot.lake.toUpperCase();
   $('map-link').href=`https://www.google.com/maps/search/?api=1&query=${spot.lat},${spot.lon}`;
   renderLive();windguru();renderCameras();
   $('history-station').innerHTML=spot.stations.map(id=>`<option value="${id}">${esc(live.stations[id]?.name||id)}</option>`).join('');
   renderHistory();stationWidgets();renderForecast();
   $('source-links').innerHTML=spot.stations.map(id=>live.stations[id]?`<a href="${esc(live.stations[id].source)}" target="_blank" rel="noopener">${esc(live.stations[id].name)}</a>`:'').join('')+'<a href="https://open-meteo.com/en/docs" target="_blank" rel="noopener">Open-Meteo</a>';
+}
+function renderSpotTable(){
+  $('spots').innerHTML=`<table class="spot-table"><caption>Choisir un spot · vent mesuré en ${unitLabel()}</caption><thead><tr><th scope="col">Spot / station</th><th scope="col">Vent <small>${unitLabel()}</small></th><th scope="col">Rafales <small>${unitLabel()}</small></th></tr></thead><tbody>${spots.map(s=>{
+    const station=live.stations[s.stations[0]],o=station?.latest,[cls,label]=status(o,station?.error);
+    return `<tr data-spot="${s.id}" class="${s.id===spot.id?'active':''}"><th scope="row"><button data-spot="${s.id}" aria-pressed="${s.id===spot.id}">${esc(s.name)}</button><span class="table-source">${esc(station?.name||'Station indisponible')}${o?' · '+fmt(o.time,{hour:'2-digit',minute:'2-digit'}):''}</span><span class="table-status ${cls}">${label}${station?' · '+distance(s,station)+' km'+(s.stations[0]==='yvbeach'?' env.':''):''}</span></th><td class="table-wind ${cls}">${n(o?.speed)}</td><td class="table-gust ${cls}">${n(o?.gust)}</td></tr>`;
+  }).join('')}</tbody></table>`;
+  $('spots').querySelectorAll('tbody tr').forEach(row=>row.onclick=()=>choose(row.dataset.spot));
 }
 function choose(id){spot=spots.find(s=>s.id===id)||spots[3];save('lake-spot',spot.id);history.replaceState(null,'','#'+spot.id);index=0;renderSpot();}
 async function load(){

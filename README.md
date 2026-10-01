@@ -17,6 +17,7 @@ Si l’écriture des données échoue : **Settings → Actions → General → W
 ## Utilisation
 
 - Sept spots : Morat, Avenches, Cudrefin, Portalban, Estavayer-le-Lac, Yvonand et Saint-Blaise.
+- Tableau de sélection des spots avec vent et rafales, station principale, heure du relevé et signalement des données anciennes.
 - Mesures d’anémomètres, datées, avec distance à la station et indication des données anciennes.
 - Widget officiel Windguru GFS sur sept jours et lien vers les autres modèles / graphes Windguru.
 - Graphe complémentaire de cinq modèles via Open-Meteo : ICON-CH1, AROME, ICON, GFS et IFS. Le curseur donne le vent et la direction heure par heure. Les modèles régionaux s’arrêtent à leur horizon réel.
@@ -32,6 +33,7 @@ Si l’écriture des données échoue : **Settings → Actions → General → W
 | Holfuy / CVN | Moyenne et rafale 15 min ; station sur la jetée à Neuchâtel | https://www.cvn.ch/services/meteo/ · station 1020 |
 | Holfuy / GMR Avenches | Moyenne et rafale 15 min ; station terrestre d’aéromodélisme | https://holfuy.com/fr/weather/929 |
 | YvBeach | Moyenne 10 min, rafale maximale 1 h | https://www.yvbeach.com/yvmeteo.htm |
+| SOCOOP / CVE Estavayer | Vent et rafales de la station du port, fichier public `data.json` ; unités en nœuds vérifiées | https://meteo.cvestavayer.ch/ |
 | Open-Meteo | Modèles indépendants de Windguru, en nœuds | https://open-meteo.com/en/docs |
 | Roundshot / offices du tourisme | Panoramas mis à jour par le fournisseur | URLs et crédits dans `data/spots.json` |
 | Portalban Tourisme / Commune Delley-Portalban | Images port et plage | https://www.portalbantourisme.com/webcam/ |

@@ -1,9 +1,149 @@
 [
-  {"id":"morat","name":"Morat","lake":"Morat","lat":46.929,"lon":7.112,"windguru":13673,"forecastNote":"Spot Windguru Murtensee, point de référence du lac.","stations":["gmr"],"cameras":[{"name":"Morat · panorama du lac","url":"https://morat.roundshot.com/","type":"iframe","credit":"Morat Tourisme / Roundshot"}]},
-  {"id":"avenches","name":"Avenches","lake":"Morat","lat":46.906,"lon":7.044,"windguru":13673,"forecastNote":"Windguru : référence Murtensee, pas un point propre à la plage d’Avenches.","stations":["gmr"],"cameras":[{"name":"Camping Port Plage","url":"https://avenches.roundshot.com/","type":"iframe","credit":"Avenches Tourisme / Roundshot"}]},
-  {"id":"cudrefin","name":"Cudrefin","lake":"Neuchâtel","lat":46.958,"lon":7.017,"windguru":97565,"forecastNote":"Spot personnalisé Windguru Cudrefin.","stations":["cvn","gmr"],"cameras":[{"name":"Cudrefin · panorama","url":"https://cudrefin.roundshot.com/","type":"iframe","credit":"Commune de Cudrefin / Roundshot"}]},
-  {"id":"portalban","name":"Portalban","lake":"Neuchâtel","lat":46.929,"lon":6.945,"windguru":57000,"stations":["cvn","gmr"],"cameras":[{"name":"Portalban · port","url":"https://www.portalbantourisme.com/wp-content/themes/jevelin-child/inc/webcam.php?wc=1","type":"image","credit":"Commune Delley-Portalban / Portalban Tourisme","source":"https://www.portalbantourisme.com/webcam/"},{"name":"Portalban · plage","url":"https://www.portalbantourisme.com/wp-content/themes/jevelin-child/inc/webcam.php?wc=2","type":"image","credit":"Commune Delley-Portalban / Portalban Tourisme","source":"https://www.portalbantourisme.com/webcam/"}]},
-  {"id":"estavayer","name":"Estavayer-le-Lac","lake":"Neuchâtel","lat":46.853,"lon":6.844,"windguru":20622,"stations":["yvbeach","cvn"],"cameras":[{"name":"Estavayer · port","url":"https://fribourg.ch/fr/estavayer-payerne/webcams/webcam-esta-port/","type":"link","credit":"Estavayer-le-Lac Région"}]},
-  {"id":"yvonand","name":"Yvonand","lake":"Neuchâtel","lat":46.807,"lon":6.744,"windguru":56998,"stations":["yvbeach"],"cameras":[{"name":"Yvonand · port","url":"https://yverdonlesbainsregion.ch/en/webcam/","type":"link","credit":"Yverdon-les-Bains Région"}]},
-  {"id":"st-blaise","name":"Saint-Blaise","lake":"Neuchâtel","lat":47.008,"lon":6.983,"windguru":57022,"stations":["cvn"],"cameras":[{"name":"Saint-Blaise · lac","url":"https://lacdeneuchatel.roundshot.com/","type":"iframe","credit":"Tourisme neuchâtelois / Roundshot"}]}
+  {
+    "id": "morat",
+    "name": "Morat",
+    "lake": "Morat",
+    "lat": 46.929,
+    "lon": 7.112,
+    "windguru": 13673,
+    "forecastNote": "Spot Windguru Murtensee, point de référence du lac.",
+    "stations": [
+      "gmr"
+    ],
+    "cameras": [
+      {
+        "name": "Morat · panorama du lac",
+        "url": "https://morat.roundshot.com/",
+        "type": "iframe",
+        "credit": "Morat Tourisme / Roundshot"
+      }
+    ]
+  },
+  {
+    "id": "avenches",
+    "name": "Avenches",
+    "lake": "Morat",
+    "lat": 46.906,
+    "lon": 7.044,
+    "windguru": 13673,
+    "forecastNote": "Windguru : référence Murtensee, pas un point propre à la plage d’Avenches.",
+    "stations": [
+      "gmr"
+    ],
+    "cameras": [
+      {
+        "name": "Camping Port Plage",
+        "url": "https://avenches.roundshot.com/",
+        "type": "iframe",
+        "credit": "Avenches Tourisme / Roundshot"
+      }
+    ]
+  },
+  {
+    "id": "cudrefin",
+    "name": "Cudrefin",
+    "lake": "Neuchâtel",
+    "lat": 46.958,
+    "lon": 7.017,
+    "windguru": 97565,
+    "forecastNote": "Spot personnalisé Windguru Cudrefin.",
+    "stations": [
+      "cvn",
+      "gmr"
+    ],
+    "cameras": [
+      {
+        "name": "Cudrefin · panorama",
+        "url": "https://cudrefin.roundshot.com/",
+        "type": "iframe",
+        "credit": "Commune de Cudrefin / Roundshot"
+      }
+    ]
+  },
+  {
+    "id": "portalban",
+    "name": "Portalban",
+    "lake": "Neuchâtel",
+    "lat": 46.929,
+    "lon": 6.945,
+    "windguru": 57000,
+    "stations": [
+      "cvn",
+      "gmr"
+    ],
+    "cameras": [
+      {
+        "name": "Portalban · port",
+        "url": "https://www.portalbantourisme.com/wp-content/themes/jevelin-child/inc/webcam.php?wc=1",
+        "type": "image",
+        "credit": "Commune Delley-Portalban / Portalban Tourisme",
+        "source": "https://www.portalbantourisme.com/webcam/"
+      },
+      {
+        "name": "Portalban · plage",
+        "url": "https://www.portalbantourisme.com/wp-content/themes/jevelin-child/inc/webcam.php?wc=2",
+        "type": "image",
+        "credit": "Commune Delley-Portalban / Portalban Tourisme",
+        "source": "https://www.portalbantourisme.com/webcam/"
+      }
+    ]
+  },
+  {
+    "id": "estavayer",
+    "name": "Estavayer-le-Lac",
+    "lake": "Neuchâtel",
+    "lat": 46.853,
+    "lon": 6.844,
+    "windguru": 20622,
+    "stations": [
+      "cve",
+      "yvbeach"
+    ],
+    "cameras": [
+      {
+        "name": "Estavayer · port",
+        "url": "https://fribourg.ch/fr/estavayer-payerne/webcams/webcam-esta-port/",
+        "type": "link",
+        "credit": "Estavayer-le-Lac Région"
+      }
+    ]
+  },
+  {
+    "id": "yvonand",
+    "name": "Yvonand",
+    "lake": "Neuchâtel",
+    "lat": 46.807,
+    "lon": 6.744,
+    "windguru": 56998,
+    "stations": [
+      "yvbeach"
+    ],
+    "cameras": [
+      {
+        "name": "Yvonand · port",
+        "url": "https://yverdonlesbainsregion.ch/en/webcam/",
+        "type": "link",
+        "credit": "Yverdon-les-Bains Région"
+      }
+    ]
+  },
+  {
+    "id": "st-blaise",
+    "name": "Saint-Blaise",
+    "lake": "Neuchâtel",
+    "lat": 47.008,
+    "lon": 6.983,
+    "windguru": 57022,
+    "stations": [
+      "cvn"
+    ],
+    "cameras": [
+      {
+        "name": "Saint-Blaise · lac",
+        "url": "https://lacdeneuchatel.roundshot.com/",
+        "type": "iframe",
+        "credit": "Tourisme neuchâtelois / Roundshot"
+      }
+    ]
+  }
 ]

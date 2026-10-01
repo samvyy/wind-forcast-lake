@@ -15,6 +15,9 @@ from zoneinfo import ZoneInfo
 ROOT = Path(__file__).resolve().parents[1]
 UTC = dt.timezone.utc
 STATIONS = {
+    "cve": {"name": "CVE · Port d’Estavayer", "lat": 46.8503333333, "lon": 6.8388333333,
+            "source": "https://meteo.cvestavayer.ch/", "data_url": "https://meteo.cvestavayer.ch/data.json",
+            "note": "Station SOCOOP / CVE au port de plaisance d’Estavayer."},
     "cvn": {"name": "CVN · Nid-du-Crô", "lat": 46.99534, "lon": 6.95099,
             "holfuy": 1020, "source": "https://www.cvn.ch/services/meteo/",
             "note": "Anémomètre sur la jetée du port de Neuchâtel."},
@@ -80,13 +83,30 @@ def parse_yvbeach(raw):
             "direction": value(r"DIRECTION\s+moy/10min\s*:\s*[A-Z]+\s*-\s*([0-9.]+)°"),
             "averaging": "Moyenne 10 min · rafale max 1 h"}
 
+def parse_cve(raw):
+    data = json.loads(raw)
+    current = data["current"]
+    def wind(key):
+        value = html.unescape(current[key]).strip()
+        match = re.fullmatch(r"([0-9]+(?:[.,][0-9]+)?)\s+(?:noeuds|nœuds|knots)", value)
+        if not match:
+            raise ValueError("Missing CVE wind value or unsupported unit: " + key)
+        return number(match[1].replace(",", "."))
+    timestamp = number(current["dateTimeRaw"])
+    speed, gust = wind("windSpeed"), wind("windGust")
+    direction = number(data["current_raw"]["windDir"])
+    if not (0 <= speed <= 150 and 0 <= gust <= 200 and 0 <= direction <= 360 and timestamp > 0):
+        raise ValueError("Invalid CVE observation")
+    return {"time": int(timestamp), "speed": speed, "gust": gust, "direction": direction,
+            "averaging": "Relevé de la source · rafale de l’intervalle", "temperature": number(data["current_raw"]["outTemp"])}
+
 def collect_station(item):
     key, meta = item
-    url = ("https://widget.holfuy.com/?" + urllib.parse.urlencode({"station": meta["holfuy"], "su": "knots", "t": "C", "lang": "fr", "mode": "detailed"})) if "holfuy" in meta else meta["source"]
+    url = ("https://widget.holfuy.com/?" + urllib.parse.urlencode({"station": meta["holfuy"], "su": "knots", "t": "C", "lang": "fr", "mode": "detailed"})) if "holfuy" in meta else meta.get("data_url", meta["source"])
     data, headers = request(url)
     received = email.utils.parsedate_to_datetime(headers["Date"]).timestamp() if headers.get("Date") else dt.datetime.now(UTC).timestamp()
-    raw = data.decode("utf-8" if "holfuy" in meta else "iso-8859-1")
-    obs = parse_holfuy(raw, received) if "holfuy" in meta else parse_yvbeach(raw)
+    raw = data.decode("iso-8859-1" if key == "yvbeach" else "utf-8")
+    obs = parse_holfuy(raw, received) if "holfuy" in meta else parse_cve(raw) if key == "cve" else parse_yvbeach(raw)
     if obs["time"] > received + 120:
         raise ValueError("Observation timestamp is in the future")
     return key, obs
@@ -99,7 +119,7 @@ def main():
     for key, meta in STATIONS.items():
         old = previous.get("stations", {}).get(key, {})
         stations[key] = {**meta, "latest": old.get("latest"), "history": old.get("history", []), "error": None}
-    with concurrent.futures.ThreadPoolExecutor(max_workers=3) as executor:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
         jobs = {executor.submit(collect_station, item): item[0] for item in STATIONS.items()}
         for job in concurrent.futures.as_completed(jobs):
             key = jobs[job]
